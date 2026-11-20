@@ -1,0 +1,111 @@
+id = "waypoints"
+name = "Waypoints"
+version = "1.1.2"
+description = "N creates a waypoint, M lists them: hide, edit, recolour or delete them. Visible waypoints show their name and distance in the world, and dying can leave one where you died."
+authors = []
+api = "0.2"
+side = "client"
+capabilities = ["registries"]
+
+[native]
+game = "26.3"
+horizon = "0a875da91dbb0fdcb7ba8c42c11341aa229af51a"
+mixins = "e59da9094f0c2fdda6c627fe9eff22dec6a906f0"
+
+[[native.module]]
+id = "runtime"
+file = "crates/horizon-client/src/game.rs"
+name = "waypoints_mod"
+source = "src/runtime.rs"
+
+[[native.mixin]]
+id = "waypoints-key"
+kind = "HEAD"
+target = "horizon_client::game::native_hooks::input_key::Game::native_input_key"
+helper = "src/key.rs"
+bindings = [
+  { name = "game", ty = "&mut crate::game::Game<'_>", value = "&mut *self" },
+  { name = "key", ty = "&str", value = "key" },
+  { name = "action", ty = "mod_api::KeyAction", value = "action" },
+  { name = "modifiers", ty = "u32", value = "modifiers" },
+]
+
+[[native.mixin]]
+id = "waypoints-frame"
+kind = "HEAD"
+target = "horizon_client::game::native_hooks::render_frame_pre::Game::native_render_frame_pre"
+helper = "src/frame.rs"
+bindings = [
+  { name = "game", ty = "&mut crate::game::Game<'_>", value = "&mut *self" },
+]
+
+[[native.mixin]]
+id = "waypoints-hud"
+kind = "HEAD"
+target = "horizon_client::game::native_hooks::render_gui_post::Game::native_render_gui_post"
+helper = "src/hud.rs"
+bindings = [
+  { name = "game", ty = "&crate::game::Game<'_>", value = "self" },
+  { name = "batch", ty = "&mut horizon_client::hud::HudBatch", value = "draw" },
+]
+
+[[native.mixin]]
+id = "waypoints-screen"
+kind = "HEAD"
+target = "horizon_client::game::native_hooks::base::Game::native_screen_render_post"
+helper = "src/screen.rs"
+bindings = [
+  { name = "game", ty = "&crate::game::Game<'_>", value = "self" },
+  { name = "batch", ty = "&mut horizon_client::hud::HudBatch", value = "draw" },
+]
+
+[[native.mixin]]
+id = "waypoints-mouse"
+kind = "HEAD"
+target = "horizon_client::game::native_hooks::base::Game::native_screen_mouse_button_pressed_pre"
+helper = "src/mouse.rs"
+bindings = [
+  { name = "game", ty = "&crate::game::Game<'_>", value = "self" },
+  { name = "screen", ty = "&mod_api::ScreenView<'_>", value = "screen" },
+  { name = "button", ty = "i32", value = "button" },
+  { name = "canceled", ty = "&mut bool", value = "canceled" },
+]
+
+[[native.mixin]]
+id = "waypoints-scroll"
+kind = "HEAD"
+target = "horizon_client::game::native_hooks::base::Game::native_screen_mouse_scrolled_pre"
+helper = "src/scroll.rs"
+bindings = [
+  { name = "game", ty = "&crate::game::Game<'_>", value = "self" },
+  { name = "screen", ty = "&mod_api::ScreenView<'_>", value = "screen" },
+  { name = "scroll", ty = "[f64; 2]", value = "scroll" },
+  { name = "canceled", ty = "&mut bool", value = "canceled" },
+]
+
+[[native.mixin]]
+id = "waypoints-keys"
+kind = "HEAD"
+target = "horizon_client::game::native_hooks::base::Game::native_screen_key_pressed_pre"
+helper = "src/keys.rs"
+bindings = [
+  { name = "game", ty = "&crate::game::Game<'_>", value = "self" },
+  { name = "screen", ty = "&mod_api::ScreenView<'_>", value = "screen" },
+  { name = "key", ty = "&str", value = "key" },
+  { name = "repeat", ty = "bool", value = "repeat" },
+  { name = "modifiers", ty = "u32", value = "modifiers" },
+  { name = "canceled", ty = "&mut bool", value = "canceled" },
+]
+
+[[native.mixin]]
+id = "waypoints-chars"
+kind = "HEAD"
+target = "horizon_client::game::native_hooks::base::Game::native_screen_char_typed_pre"
+helper = "src/chars.rs"
+bindings = [
+  { name = "game", ty = "&crate::game::Game<'_>", value = "self" },
+  { name = "screen", ty = "&mod_api::ScreenView<'_>", value = "screen" },
+  { name = "c", ty = "char", value = "c" },
+  { name = "modifiers", ty = "u32", value = "modifiers" },
+  { name = "canceled", ty = "&mut bool", value = "canceled" },
+]
